@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "eShop",
+  "name": "A simple e-commerce App with ReactJs and Python as the tech stack",
+  "author": "Boahen Fred",
+  "github_url": "github.com/quabenaboahen",
   "icons": [
     {
       "src": "favicon.ico",
