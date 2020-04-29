@@ -4,8 +4,6 @@ import {faStar} from '@fortawesome/free-solid-svg-icons';
 import $ from 'jquery';
 window.$=$;
 
-var subTotal=0.0, prevSubTotal=0.0;
-
 class ProductDetails extends Component{
 
     state = {
@@ -29,51 +27,6 @@ class ProductDetails extends Component{
      highlightStar = starIndex => event => {
          this.setState({highlighted: starIndex});
      }
-
-     addToCart = event => {
-        let currentProduct = this.state.product;
-        let updatedPriceOfCurrentProduct=0.0, 
-        originalProductPrice=0.0, currentProductPrice=0.0, currentProductQuantity=0;  
-        if(parseFloat($(".sub-total").text()) > 0.0){
-        /*
-        * in a case where a user adds items to cart and updates the qty for the items in the cart details
-        * update the subtotal accordinly if user closes cart details and clicks on another item to add
-        * TODO: Optimize code later
-        */
-            prevSubTotal = parseFloat($(".sub-total").text());
-            subTotal = prevSubTotal + currentProduct.productPrice;
-        }else{
-        /*
-        * this is on an assumption that user is adding items to cart without 
-        * updating the qty of items manually
-        */
-            subTotal+=currentProduct.productPrice; 
-        }
-        /*
-        * if clicked product has already been added to cart just update the price, subtotal & quantity
-        * of this particular product else add new product to cart
-        */
-        if(this.props.productsInCart.length < 1){
-            this.props.productsInCart.push(currentProduct);
-        }else {
-          if(this.props.productsInCart.some(p => p.productId === currentProduct.productId)){ 
-          originalProductPrice = currentProduct.productPrice;
-          currentProductPrice = parseFloat($("table tr.cart-row"+currentProduct.productId+ " td.product-price").text()); 
-          currentProductQuantity = parseInt($("table tr.cart-row"+currentProduct.productId+ " td.product-qty input.qty").val());
-          currentProductQuantity+=1;
-          updatedPriceOfCurrentProduct = currentProductPrice + originalProductPrice;
-          $("table tr.cart-row"+currentProduct.productId+ " td.product-price").text(updatedPriceOfCurrentProduct);
-          $("table tr.cart-row"+currentProduct.productId+ " td.product-qty input.qty").val(currentProductQuantity);
-            } else{
-           //if product not found, add to our products array
-           this.props.productsInCart.push(currentProduct);
-          }
-        }
-    
-      $(".sub-total").text(subTotal);
-      this.props.updateSubTotal(subTotal);
-      this.props.currentCartItems(...this.props.productsInCart);
-	}
    
     render(){     
         return(
@@ -126,7 +79,8 @@ class ProductDetails extends Component{
 									</div>
 									<div className="occasion-cart">
 											<div className="googles single-item singlepage">
-														<button className="googles-cart pgoogles-cart" onClick={this.addToCart}>
+                                                        <button className="googles-cart pgoogles-cart" 
+                                        onClick={this.props.addToCart(this.state.product.productId)}>
 															Add to Cart
 														</button>	
 												</div>

@@ -4,8 +4,6 @@ import {faPhone, faCartArrowDown, faUser, faTrash} from '@fortawesome/free-solid
 import $ from 'jquery';
 window.$ = $;
 
-var subTotal=0.0;
-
 class Header extends Component{
 
     renderAbout = event => {
@@ -32,32 +30,14 @@ class Header extends Component{
 	}
 
 	onCartItemPriceChange = pid => event => {
-		let currentProductQuantity = event.target.value, updatedProductPrice=0.0;
+		let currentProductQuantity = event.target.value, updatedProductPrice=0.0, subTotal=0.0;
 		let intitialPriceOfCurrentProduct = this.props.currentProduct(pid)[0].productPrice;
-		updatedProductPrice = intitialPriceOfCurrentProduct * currentProductQuantity;
+		updatedProductPrice = (intitialPriceOfCurrentProduct * currentProductQuantity).toFixed(2);
 		$("table tr.cart-row"+pid+ " td.product-price").text(updatedProductPrice);
-		$(".sub-total").text(this.props.subTotal("product-price"));
-		this.props.updateSubTotal(this.props.subTotal("product-price"));
+		subTotal = this.props.subTotal("product-price");
+		$(".sub-total").text(subTotal.toFixed(2));
+		this.props.updateSubTotal(subTotal.toFixed(2));
 	}
-
-	deleteCartItem = (rowClass, currentProductId) => event => {
-		let currentCartItems = this.props.currentCartItems;
-		let indexOfItemToBeRemovedFromArray = currentCartItems.findIndex(p => p ===this.props.currentProduct(currentProductId)[0]);
-		let currentProductPrice = parseFloat($('table tr.' + rowClass + ' td.product-price').text()); 
-				
-		currentCartItems.splice(indexOfItemToBeRemovedFromArray, 1);
-		this.props.updateCartItems(...currentCartItems);
-		/*
-		* reduce the total price of the products in the cart 
-		* by currentProductPrice (the price of the product being deleted)
-		* also reduce the total number of items when user deletes any cart item in checkout
-		*/
-	   subTotal=(parseFloat($(".sub-total").text()) - currentProductPrice).toFixed(2);
-	   $(".sub-total").text(subTotal);
-	   this.props.updateSubTotal(subTotal);
-	   //set isCartEmpty to false to prevent user from proceeding to checkout if there are no items
-	   if(currentCartItems.length === 0) this.props.updateCartStatus(true);
-	  }
 
 	populateTableInCart = () => {
 		return this.props.currentCartItems.map((p,i) => {
@@ -68,7 +48,7 @@ class Header extends Component{
 			min="1" max="50" defaultValue="1" onChange={this.onCartItemPriceChange(p.productId)}/></td>
             <td className="product-price">{p.productPrice}</td>
 			<td className="del-btn"><FontAwesomeIcon icon={faTrash} 
-			onClick={this.deleteCartItem("cart-row"+ p.productId, p.productId)}/></td>
+			onClick={this.props.deleteCartItem("cart-row"+ p.productId, p.productId, "product-price")}/></td>
             </tr>
             )
         })

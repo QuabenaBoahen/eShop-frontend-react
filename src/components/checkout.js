@@ -3,10 +3,10 @@ import '../css/checkout.css';
 import $ from 'jquery';
 window.$=$;
 
-var total=0.0, serviceCharge = 2.95;
+var serviceCharge = 2.95;
 class CartCheckout extends Component{ 
 	
-	getValueOfItemFromCartItemsUsingDomProps = (propertyString) =>{
+	getValueOfItemFromCartItemsUsingDomProps = (propertyString) => {
 		/*
 		* check if the className string contains the char 'qty' this means we intend to get 
 		* the quanty from the quantity input field and we must call .val() on the object 
@@ -15,25 +15,7 @@ class CartCheckout extends Component{
 	return propertyString.indexOf("qty") > -1 ? $(`${propertyString}`).val(): $(`${propertyString}`).text();
 	}
 
-    deleteCartItemInCheckout = (rowClass, currentProductId) => event => {
-	  let currentCartItems = this.props.cartItems;
-	  let indexOfItemToBeRemovedFromArray = currentCartItems.findIndex(p => p === this.props.currentProduct(currentProductId)[0]);
-      let currentProductPrice = parseFloat($('table tr.' + rowClass + ' td.product-price-checkout').text()); 
-
-	  currentCartItems.splice(indexOfItemToBeRemovedFromArray, 1);
-	  this.props.updateCartItems(...currentCartItems);
-	  /*
-	  * reduce the total price of the products in the cart 
-	  * by currentProductPrice (the price of the product being deleted)
-	  * also reduce the total number of items when user deletes any cart item in checkout
-	  */
-	 total=(parseFloat($(".sub-total").text()) - currentProductPrice).toFixed(2);
-	 $(".sub-total").text(total);
-	 this.props.updateSubTotal(total);
-    }
-
     render(){
-        let cartItems = this.props.cartItems;
         return (
        <section className="banner-bottom-wthreelayouts py-lg-5 py-3">
 		<div className="container">
@@ -55,7 +37,7 @@ class CartCheckout extends Component{
 							</tr>
 						</thead>
 						<tbody>
-                            {cartItems.map((p,i) => {
+                            {this.props.cartItems.map((p,i) => {
                                 return (
                                 <tr className={"cart-row" + p.productId} key={i}>
 								<td className="invert">{i+1}</td>
@@ -79,7 +61,7 @@ class CartCheckout extends Component{
 									</td>
 								<td className="invert">
 									<div className="rem" 
-									onClick={this.deleteCartItemInCheckout("cart-row"+ p.productId, p.productId)}>
+				onClick={this.props.deleteCartItem("cart-row"+ p.productId, p.productId, "product-price-checkout")}>
 										<div className="close1"></div>
 									</div>
 								</td>
@@ -103,7 +85,7 @@ class CartCheckout extends Component{
 							</li>
                             <li>Sub Total
 								<i> -</i>
-								<span>$ {this.props.subTotal - serviceCharge}</span>
+								<span>$ {this.props.subTotal - serviceCharge.toFixed(2)}</span>
 							</li>
 						</ul>
 					</div>
@@ -150,7 +132,7 @@ class CartCheckout extends Component{
 							</section>
 						</form>
 						<div className="checkout-right-basket">
-							<a href="/#">Make a Payment </a>
+			<button className="submit check_out" disabled={this.props.cartItems.length < 1 ? true: false}>Make a Payment </button>
 						</div>
 					</div>
 					<div className="clearfix"> </div>
