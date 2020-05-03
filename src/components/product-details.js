@@ -8,7 +8,7 @@ class ProductDetails extends Component{
 
     state = {
        featuredProducts: [],
-       product: this.props.product,
+       product: this.props.state.currentProductWithDetails,
        highlighted: -1
     }
 

@@ -203,6 +203,10 @@ h1.logo-w3layouts a.navbar-brand {
     border-radius: 0;
 }
 
+.sign-out {
+    color: rgb(204, 77, 18) !important;
+}
+
 .nav-mega .dropdown-menu.mega-menu>li {
     padding: 3em 2em;
 }

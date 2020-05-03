@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faCartArrowDown} from '@fortawesome/free-solid-svg-icons';
 import $ from 'jquery';
+import { NavLink } from 'react-router-dom';
 window.$ = $;
 
 
@@ -25,7 +26,7 @@ class NewArrivals extends Component{
             <div className="container-fluid">
                 <div className="inner-sec-shop px-lg-4 px-3">
                     <h3 className="tittle-w3layouts my-lg-4 my-4">New Arrivals for you </h3>
-                    <div className="row" >
+                    <div className="row">
                     {this.props.products.map(p => {
                     return(
                     <div className="col-md-3 product-men women_two" key={p.productId}>
@@ -45,7 +46,7 @@ class NewArrivals extends Component{
                                         <div className="grid_meta">
                                             <div className="product_price">
                                                 <h4>
-                                                <a href="/#" onClick={this.renderProductDetails(p.productId)}>{p.productName}</a>
+                                                <NavLink to={`/products/new-arrivals/${p.productId}`} onClick={this.renderProductDetails(p.productId)}>{p.productName}</NavLink>
                                                 </h4>
                                                 <div className="grid-price mt-2">
                                                     <span className="money ">${p.productPrice}</span>

@@ -1,15 +1,69 @@
 import React, { Component } from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faPhone, faCartArrowDown, faUser, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faPhone, faCartArrowDown, faUser, faTrash, faTimes, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
+import {withCookies} from 'react-cookie';
 import $ from 'jquery';
+import { NavLink } from 'react-router-dom';
+import {browserHistory} from 'react-router';
 window.$ = $;
 
 class Header extends Component{
+
+	state = {
+		user: {}
+	}
+
+	renderUserAccountForm = event => {
+		$("#user-account-form").show();
+	}
+
+	closeUserAccountForm = event => {
+		$("#user-account-form").hide();
+		browserHistory.push("/");
+	}
+
+	inpuChange = event => {
+	   let user = this.state.user;
+	   user[event.target.name] = event.target.value;
+	   this.setState({user: user});
+	}
+
+	signIn = event => {
+		fetch(`${process.env.REACT_APP_AUTH_URI}`, {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json"
+			},
+			body: JSON.stringify(this.state.user)
+		}).then(resp => resp.json())
+		.then(response => {
+		response.token === undefined ? this.props.cookies.set('eshop-tk', null):
+			this.props.cookies.set('eshop-tk', response.token);
+		  /* send cookie update to App component so it can be accessible 
+		  * within other components without refreshing pages
+		  */
+		 this.props.updateToken(response.token);
+		 $("#user-account-form").hide();
+		})
+		.catch(error => console.log("error message: ", error))
+	}
+
+	signOut = event => {
+		this.props.cookies.remove('eshop-tk', { path: '/' });
+		browserHistory.push("/");
+	}
 
     renderAbout = event => {
 		const toggleViewObj= {isSliderView: false, isAboutView: true, 
 			isNewArrivalsView: false, isProductDetailsView: false, isCheckoutView: false};
 		document.getElementById('title').innerText="eShop - About";
+		this.props.updateToggleViewObj(toggleViewObj);
+	}
+
+	renderHome = event => {
+		const toggleViewObj= {isSliderView: true, isAboutView: false, 
+			isNewArrivalsView: true, isProductDetailsView: false, isCheckoutView: false};
+		document.getElementById('title').innerText="eShop - Home";
 		this.props.updateToggleViewObj(toggleViewObj);
 	}
 
@@ -22,7 +76,7 @@ class Header extends Component{
 		if(!this.props.isCartEmpty){
 		const toggleViewObj= {isSliderView: false, isAboutView: false, 
 			isNewArrivalsView: false, isProductDetailsView: false, isCheckoutView: true};
-		document.getElementById('title').innerText="eShop - Checkout";
+		document.getElementById('title').innerText="eShop - Cart Checkout";
 		this.props.updateToggleViewObj(toggleViewObj);
 		}else{
 			alert("Please add at least one item to cart before you checkout");
@@ -57,6 +111,27 @@ class Header extends Component{
     render(){
         return(
             <header>
+			<div id="user-account-form" className="overlay-login text-left">
+						<button type="button" className="overlay-close1" onClick={this.closeUserAccountForm}>
+							<FontAwesomeIcon icon={faTimes}/>
+						</button>
+						<div className="wrap">
+							<h5 className="text-center mb-4">Login Now</h5>
+							<div className="login p-5 bg-dark mx-auto mw-100">
+									<div className="form-group">
+										<label className="mb-2">Email address</label>
+										<input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" 
+										placeholder="Provide your email" name="username" required onChange={this.inpuChange}/>
+									</div>
+									<div className="form-group">
+										<label className="mb-2">Password</label>
+										<input type="password" className="form-control" id="exampleInputPassword1" 
+										name="password" placeholder="Enter your password" required onChange={this.inpuChange}/>
+									</div>
+									<button className="btn btn-primary submit mb-4" onClick={this.signIn}>Sign In</button>
+							</div>
+						</div>
+					</div>
             <div className="row">
             <div className="col-md-3 top-info text-left mt-lg-4">
 					<ul>
@@ -74,9 +149,9 @@ class Header extends Component{
            <div className="col-md-3 top-info-cart text-right mt-lg-4">
 					<ul className="cart-inner-info">
 						<li className="button-log">
-							<a className="btn-open" href="/#">
-								<span className="fa fa-user"><FontAwesomeIcon icon={faUser}/></span>
-							</a>
+						<button className={this.props.cookies.get('eshop-tk') === undefined? "top_googles_cart btn-open":"hide-field"}
+						onClick={this.renderUserAccountForm}><FontAwesomeIcon icon={faUser}/>
+						</button>
 						</li>
 						<li className="galssescart galssescart2 cart cart box_1">
 								<button className="top_googles_cart" onClick={this.renderCart}>
@@ -85,34 +160,15 @@ class Header extends Component{
 									<i className="fas fa-cart-arrow-down"></i>
 								</button>
 						</li>
+			         <li className="button-log">
+							<NavLink className="btn-open sign-out" to="/logout">
+								<span className={this.props.cookies.get('eshop-tk') === undefined? "hide-field":"fa fa-user"}>
+									<FontAwesomeIcon icon={faSignOutAlt} 
+								onClick={this.signOut}/></span>
+							</NavLink>
+						</li>
 					</ul>
-					<div className="overlay-login text-left">
-						<button type="button" className="overlay-close1">
-							<i className="fa fa-times" aria-hidden="true"></i>
-						</button>
-						<div className="wrap">
-							<h5 className="text-center mb-4">Login Now</h5>
-							<div className="login p-5 bg-dark mx-auto mw-100">
-								<form action="#" method="post">
-									<div className="form-group">
-										<label className="mb-2">Email address</label>
-										<input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="" required="" />
-										<small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
-									</div>
-									<div className="form-group">
-										<label className="mb-2">Password</label>
-										<input type="password" className="form-control" id="exampleInputPassword1" placeholder="" required="" />
-									</div>
-									<div className="form-check mb-2">
-										<input type="checkbox" className="form-check-input" id="exampleCheck1" />
-										<label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
-									</div>
-									<button type="submit" className="btn btn-primary submit mb-4">Sign In</button>
-
-								</form>
-							</div>
-						</div>
-					</div>
+					
 				</div>
                 <div className="search">
 				<div className="mobile-nav-button">
@@ -144,13 +200,13 @@ class Header extends Component{
 				</button>
 				<div className="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul className="navbar-nav nav-mega mx-auto">
-						<li className={this.props.toggleViewObj.isSliderView? 'nav-item active': 'nav-item'}>
-							<a className="nav-link ml-lg-0" href="/">Home
-								<span className="sr-only">(current)</span>
-							</a>
+						<li className="nav-item"
+						onClick={this.renderHome}>
+					<NavLink className="nav-link" to="/" activeStyle={{fontWeight: "bold", color: 'orange'}}>Home
+							</NavLink>
 						</li>
-						<li className={this.props.toggleViewObj.isAboutView? 'nav-item active': 'nav-item'} onClick={this.renderAbout}>
-						<a className="nav-link" href="/#">About</a>
+						<li className="nav-item" onClick={this.renderAbout}>
+						<NavLink className="nav-link" to="/about" activeStyle={{fontWeight: "bold", color: 'orange'}}>About</NavLink>
 						</li>
 						<li className="nav-item dropdown">
 							<a className="nav-link dropdown-toggle" href="/" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true"
@@ -164,7 +220,7 @@ class Header extends Component{
 						</div>
 						</li>
 						<li className="nav-item">
-							<a className="nav-link" href="contact.html">Contact</a>
+							<NavLink className="nav-link" to="/contact">Contact</NavLink>
 						</li>
 					</ul>
 				</div>
@@ -197,8 +253,10 @@ class Header extends Component{
 							 <tfoot>
 							 <tr>
 									 <td colSpan="2">Subtotal: $ <span className="sub-total"></span></td>
-									 <td colSpan="2" onClick={this.renderCheckout}><button type="button" 
-									 className="btn btn-primary">Check out</button></td>
+									 <td colSpan="2">
+									 <NavLink to="/cart-checkout" onClick={this.renderCheckout}><button type="button" 
+									 className="btn btn-primary">Check out</button>
+									 </NavLink></td>
 							</tr>
 							 </tfoot>
 				</table>
@@ -211,4 +269,4 @@ class Header extends Component{
     }
 }
 
-export default Header;
+export default withCookies(Header);

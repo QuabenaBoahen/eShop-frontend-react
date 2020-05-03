@@ -55,13 +55,14 @@
 
 .overlay-login {
 	display: none;
-    position: fixed;
+    position: absolute;
     top: 0;
     background: #212529;
     overflow: auto;
 	z-index: 9999;
 	padding: 3em 3em;
 	right: 0;
+	width: 40%;
 	height: 100%;
 	transition: 0.5s all;
     -webkit-transition: 0.5s all;
@@ -167,6 +168,25 @@
 }
 
 @media screen and (max-width:48em) {
+
+	.overlay-login {
+		display: none;
+		position: absolute;
+		top: 0;
+		background: #212529;
+		overflow: auto;
+		z-index: 9999;
+		padding: 3em 3em;
+		right: 0;
+		width: 40%;
+		height: 100%;
+		transition: 0.5s all;
+		-webkit-transition: 0.5s all;
+		-moz-transition: 0.5s all;
+		-o-transition: 0.5s all;
+		-ms-transition: 0.5s all;
+	}
+	
 	.wrap ul.wrap-nav>li {
 		width: 100%;
 		padding: 20px 0;
